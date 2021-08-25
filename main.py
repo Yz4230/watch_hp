@@ -50,7 +50,7 @@ def main():
     new_articles = set(fetched_articles) - set(old_articles)
     new_articles = sorted(
         list(new_articles),
-        key=lambda x: x.published_at, reverse=True
+        key=lambda x: x.published_at
     )
 
     if new_articles:
