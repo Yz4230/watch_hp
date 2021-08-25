@@ -1,10 +1,11 @@
 import json
 import os
 import requests
+import time
 from datetime import datetime
 from src.crawler import UtkCrawler
 from src.models import Article, History
-from settings import DISCORD_WEBHOOK_URL, HISTORY_JSON_PATH
+from settings import DISCORD_WEBHOOK_URL, HISTORY_JSON_PATH, WATCH_INTERVAL_MINUTES
 
 
 def save_history(latest_articles: list[Article]):
@@ -39,20 +40,27 @@ def send_message_to_discord(new_article: Article):
     res.raise_for_status()
 
 
-history = load_history()
-old_articles = history.latest_articles
+def main():
+    history = load_history()
+    old_articles = history.latest_articles
 
-crawler = UtkCrawler()
-fetched_articles = crawler.fetch_articles()
+    crawler = UtkCrawler()
+    fetched_articles = crawler.fetch_articles()
 
-new_articles = set(fetched_articles) - set(old_articles)
-new_articles = sorted(
-    list(new_articles),
-    key=lambda x: x.published_at, reverse=True
-)
+    new_articles = set(fetched_articles) - set(old_articles)
+    new_articles = sorted(
+        list(new_articles),
+        key=lambda x: x.published_at, reverse=True
+    )
 
-if new_articles:
-    save_history(fetched_articles)
+    if new_articles:
+        save_history(fetched_articles)
 
-for article in new_articles:
-    send_message_to_discord(article)
+    for article in new_articles:
+        send_message_to_discord(article)
+
+
+if __name__ == '__main__':
+    while True:
+        main()
+        time.sleep(WATCH_INTERVAL_MINUTES * 60)
