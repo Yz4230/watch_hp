@@ -58,6 +58,7 @@ def main():
 
     for article in new_articles:
         send_message_to_discord(article)
+        time.sleep(1)
 
 
 if __name__ == '__main__':
